@@ -49,6 +49,16 @@ void log_write(char c)
         fputc(c, fp);
 }
 
+void log_write_time(const char *string)
+{
+    if (fp != NULL) {
+        fputc('[', fp);
+        fwrite(string, sizeof(char), strlen(string), fp);
+        fputc(']', fp);
+        fputc(' ', fp);
+    }
+}
+
 void log_close(void)
 {
     if (fp != NULL)

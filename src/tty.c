@@ -548,6 +548,7 @@ int tty_connect(void)
     static bool first = true;
     int    status;
     time_t next_timestamp = 0;
+    char   *time_string;
 
     /* Open tty device */
 #ifdef __APPLE__
@@ -641,7 +642,13 @@ int tty_connect(void)
                     /* Print timestamp on new line, if desired. */
                     if (next_timestamp && input_char != '\n' && input_char != '\r')
                     {
-                        fprintf(stdout, ANSI_COLOR_GRAY "[%s] " ANSI_COLOR_RESET, current_time());
+                        time_string = current_time();
+                        fprintf(stdout, ANSI_COLOR_GRAY "[%s] " ANSI_COLOR_RESET, time_string);
+
+                        /* Write to log */
+                        if (option.log)
+                            log_write_time(time_string);
+
                         next_timestamp = 0;
                     }
 

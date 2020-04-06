@@ -28,19 +28,29 @@
 
 char * current_time(void)
 {
-    static char time_string[20];
-    time_t t;
+    static char tmp_string[20];
+    static char time_string[24];
     struct tm *tmp;
+    struct tm gmtval;
+    struct timespec curtime;
+    int msec;
 
-    t = time(NULL);
-    tmp = localtime(&t);
+    if (clock_gettime(CLOCK_REALTIME, &curtime) != 0)
+    {
+        error_printf("Retrieving clock_gettime failed");
+        exit(EXIT_FAILURE);
+    }
+    msec = curtime.tv_nsec/1.0e6;
+
+    tmp = gmtime_r(&curtime.tv_sec, &gmtval);
     if (tmp == NULL)
     {
-        error_printf("Retrieving local time failed");
+        error_printf("Retrieving gmtime failed");
         exit(EXIT_FAILURE);
     }
 
-    strftime(time_string, sizeof(time_string), "%H:%M:%S", tmp);
+    strftime(tmp_string, sizeof(tmp_string), "%Y-%m-%dT%H:%M:%S", tmp);
+    snprintf(time_string, sizeof(time_string), "%s.%03d", tmp_string, msec);
 
     return time_string;
 }
